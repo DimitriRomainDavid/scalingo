@@ -12,7 +12,7 @@ If you want to use the Makefile you will need to install [Wire](https://github.c
 
 and then run `make` and start the binary `./cmd/app/app`
 
-or use Docker
+or build an image using Docker
 
 `docker build -t image-name:tag .`
 
