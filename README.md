@@ -20,6 +20,37 @@ and run it
 
 `docker run -p 5000:5000 image-name:tag`
 
+###  List Repositories Input
+
+The `/repositories` endpoint allows you to filter repositories based on various criteria.
+
+Request Body
+
+The request body should contain a JSON object with the following fields:
+
+    language (optional): Filters repositories by the programming language used.
+    license (optional): Filters repositories by the type of license.
+    name_contains (optional): Filters repositories by name containing the specified string.
+    description_contains (optional): Filters repositories by description containing the specified string.
+    min_size (optional): Filters repositories by total minimum size in bytes.
+    max_size (optional): Filters repositories by total maximum size in bytes.
+
+### Options
+
+`LATEST_CREATED_REPO_RETRY`
+
+Modify this value to change the number of retry to get the latest created repository ID, it uses the `/events` endpoint 
+
+
+
+`OUTPUT_SIZE`
+
+Modify this value to change the size of the sample on which the filters are applied 
+
+`PROCESSING_BATCH_SIZE`
+
+Modify this value to change the number of parallel/concurrent processed items 
+
 ## Dependencies
 
 ### Dependency Injection: Wire
