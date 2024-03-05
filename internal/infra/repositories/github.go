@@ -32,12 +32,14 @@ type Github struct {
 	Token                  string
 	Version                string
 	LatestCreatedRepoRetry int
+	UseCredentials         bool
 }
 
 func ProvideGithub(config *conf.Config) *Github {
 	return &Github{
 		URL:                    config.GitHubURL,
 		Token:                  config.GitHubToken,
+		UseCredentials:         config.GitHubCredentials,
 		Version:                config.GitHubVersion,
 		LatestCreatedRepoRetry: config.LatestCreatedRepoRetry,
 	}
@@ -59,7 +61,7 @@ type Event struct {
 func (g *Github) GetLatestRepoID() (int, error) {
 	for i := 0; i < g.LatestCreatedRepoRetry; i++ {
 		log.Warnf("try %d on %d to fetch latest created repo ID", i, g.LatestCreatedRepoRetry)
-		statusCode, b, err := httpRequest(&fasthttp.Client{}, g.Version, g.URL+EventsEndpoint, g.Token)
+		statusCode, b, err := httpRequest(&fasthttp.Client{}, g.Version, g.URL+EventsEndpoint, g.Token, g.UseCredentials)
 		if err != nil {
 			return 0, errors.New("error while getting latest repo id: " + strconv.Itoa(statusCode) + shared.Separator + err.Error())
 		}
@@ -99,7 +101,7 @@ type Repository struct {
 
 func (g *Github) GetRepositories(id int) ([]*dto.LatestCreatedRepo, error) {
 	url := g.URL + RepoListEndpoint + Since + strconv.Itoa(id)
-	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, url, g.Token)
+	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, url, g.Token, g.UseCredentials)
 	if err != nil {
 		return nil, errors.New("error while getting repositories: " + strconv.Itoa(statusCode) + shared.Separator + err.Error())
 	}
@@ -135,7 +137,7 @@ func (g *Github) GetRepositories(id int) ([]*dto.LatestCreatedRepo, error) {
 }
 
 func (g *Github) GetRepositoryLanguages(fullURL string) (map[string]int, error) {
-	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, fullURL, g.Token)
+	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, fullURL, g.Token, g.UseCredentials)
 	if err != nil {
 		return map[string]int{},
 			errors.New("error while getting repository languages: " + strconv.Itoa(statusCode) + shared.Separator + err.Error())
@@ -159,7 +161,7 @@ type spdx struct {
 }
 
 func (g *Github) GetRepositorySPDX(fullURL string) (string, error) {
-	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, fullURL, g.Token)
+	statusCode, repoList, err := httpRequest(&fasthttp.Client{}, g.Version, fullURL, g.Token, g.UseCredentials)
 	if err != nil {
 		return "", errors.New("error while getting repository SPDX: " + strconv.Itoa(statusCode) + shared.Separator + err.Error())
 	}
@@ -181,12 +183,14 @@ func (g *Github) GetRepositorySPDX(fullURL string) (string, error) {
 	return "", nil
 }
 
-func httpRequest(client *fasthttp.Client, version, uri, token string) (statusCode int, body []byte, err error) {
+func httpRequest(client *fasthttp.Client, version, uri, token string, useCred bool) (statusCode int, body []byte, err error) {
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(uri)
 	req.Header.SetMethod(http.MethodGet)
 	req.Header.Set(GithubVersionHeader, version)
-	req.Header.Set(Authorization, Bearer+token)
+	if useCred {
+		req.Header.Set(Authorization, Bearer+token)
+	}
 	resp := fasthttp.AcquireResponse()
 	err = client.Do(req, resp)
 	if err != nil {

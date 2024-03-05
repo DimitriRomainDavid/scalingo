@@ -6,6 +6,20 @@ This project adopts a hexagonal architecture to structure its components, provid
 ![Software Architecture](images/software.png)
 ![GitHub Implementation](images/github.png)
 
+
+## How to use
+If you want to use the Makefile you will need to install [Wire](https://github.com/google/wire) and [Golangci-lint](https://github.com/golangci/golangci-lint)
+
+and then run `make` and start the binary `./cmd/app/app`
+
+or use Docker
+
+`docker build -t image-name:tag .`
+
+and run it
+
+`docker run -p 5000:5000 image-name:tag`
+
 ## Dependencies
 
 ### Dependency Injection: Wire
@@ -39,3 +53,4 @@ This project adopts a hexagonal architecture to structure its components, provid
 ## License
 
 This project is licensed under the [MIT License](LICENSE). Feel free to use and modify the code as needed.
+

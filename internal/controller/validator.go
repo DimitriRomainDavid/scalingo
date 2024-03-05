@@ -2,8 +2,9 @@ package controller
 
 import (
 	"errors"
-	jsoniter "github.com/json-iterator/go"
 	"scalingo/internal/core/domain"
+
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -18,7 +19,7 @@ var validFields = map[string]bool{
 }
 
 func validateListProjects(domainInput []byte) (*domain.ListRepoInput, error) {
-	var input map[string]interface{}
+	var input map[string]any
 	if err := jsoniter.Unmarshal(domainInput, &input); err != nil {
 		return nil, errors.New("List projects - unable to deserialize: " + err.Error())
 	}
